@@ -63,7 +63,7 @@ struct Vect2
 
 //do same as Vect2
 template <typename V>
-struct Vector3
+struct Vect3
 {
 	V x;
 	V y;
@@ -71,6 +71,53 @@ struct Vector3
 
 	Vect2<V> xy()
 	{
-		return Vect2(x, y);
+		return Vect2<V>(x, y);
 	}
+
+	Vect2<V> xz()
+	{
+		return Vect2<V>(x, z);
+	}
+
+	Vect2<V> yz()
+	{
+		return Vect2<V>(y, z);
+	}
+
+	Vect2<V> yx()
+	{
+		return Vect2<V>(y, x);
+	}
+
+	Vect2<V> zx()
+	{
+		return Vect2<V>(z, x);
+	}
+
+	Vect2<V> zy()
+	{
+		return Vect2<V>(z, y);
+	}
+};
+
+template <typename V>
+struct Vect4
+{
+	V x;
+	V y;
+	V z;
+	V w;
+};
+
+//contains only 3d coordinates as 2d objects are placed in 3d space
+template <typename V>
+struct Transform
+{
+	Vect3<V> position;
+	Vect3<V> rotation;
+	Vect3<V> scale;
+	
+	Vect3<V> localPosition;
+	Vect3<V> localRotation;
+	Vect3<V> localScale;
 };
