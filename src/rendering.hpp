@@ -69,6 +69,9 @@ private:
         {
             std::vector<std::string> projectFiles = {
                 "shaders/uniforms.glsl",
+                "shaders/libraries/usefulCalculations.glsl",
+                "shaders/shapes/primitives.glsl",
+                "shaders/shapesManager.glsl",
                 "shaders/main.glsl"
             };
 
@@ -88,8 +91,6 @@ private:
 
         void OnGameStart() override
         {
-            resolution.x = 1280;
-            resolution.y = 720;
             
             if (!sf::Shader::isAvailable())
             {
