@@ -1,33 +1,44 @@
 #pragma once
-#include <vector>
+#include <iostream>
 #include <sstream>
 #include <fstream>
+#include <vector>
+#include <SFML/Graphics.hpp>
+#include <SFML/OpenGL.hpp>
 #include "shapes.hpp"
 #include "engine.hpp"
 
-class Rendering : private Engine
+class Rendering : public Engine
 {
+public:
+    friend int main(); //need to find a way to not copy this to every "engine" object
+
 private:
     std::vector<ShapeObject> renderQueue;
+    Vect2<int> resolution;
+    sf::Window mainWindow;
+    sf::Shader mainRenderer;
 
-    //also basic shaders for that:
-    const char* screenVertexShaderSource = R"(#version 460 core
-layout (location = 0) in vec3 pos;
-layout (location = 1) in vec2 uvs;
-out vec2 UVs;
-void main()
-{
-	gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
-	UVs = uvs;
-})";
-    const char* screenFragmentShaderSource = R"(#version 460 core
-out vec4 FragColor;
-uniform sampler2D screen;
-in vec2 UVs;
-void main()
-{
-	FragColor = texture(screen, UVs);
-})";
+    //template shaders for covering entire screen
+    const std::string screenVertexShaderSource = R"(
+        attribute vec3 vertexPosition_modelspace;
+
+    void main()
+    {
+        gl_Position = vec4(vertexPosition_modelspace, 1.0);
+    })";
+
+    const std::string screenFragmentShaderSource = R"(
+        uniform vec2 iResolution;
+
+    void main()
+    {
+        vec2 uv = gl_FragCoord.xy / iResolution.xy;
+
+        vec4 col = vec4(uv.x, uv.y, 1.0, 1.0);
+
+        gl_FragColor = col;
+    })";
     
 
     //-------------------------------------
@@ -39,29 +50,13 @@ void main()
         std::stringstream program;
         for (int i = 0; i < filepaths.size(); ++i)
         {
-            //special overload for inputing custom fractals
-            //it comes before main and shapesManager to be able to use other dependencies
-            if (i == filepaths.size() - 3)
+            //join each file
+            std::ifstream file(filepaths[i]);
+            std::string line;
+            while (std::getline(file, line))
             {
-                //carefully place function for custom shape so it does not breaks the program
-                std::ifstream file(filepaths[i]);
-                std::string line;
-                while (std::getline(file, line))
-                {
-                    program << line << '\n';
-                }
+                program << line << '\n';
             }
-            else
-            {
-                //join each file
-                std::ifstream file(filepaths[i]);
-                std::string line;
-                while (std::getline(file, line))
-                {
-                    program << line << '\n';
-                }
-            }
-
         }
 
         return program.str();
@@ -70,8 +65,8 @@ void main()
     private:
         void OnGameStart() override
         {
-            const unsigned int sizeX = 1280;
-            const unsigned int sizeY = 720;
+            resolution.x = 1280;
+            resolution.y = 720;
 
             //scene initialization
             //List<ShapeObject<GLfloat>> mainScene;
@@ -91,11 +86,50 @@ void main()
             };
 
             std::string shaderSource = ParseShaderProject(projectFiles);
+            
+            if (!sf::Shader::isAvailable())
+            {
+                std::cout << "Main shader not available."  << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            if (!mainRenderer.loadFromMemory(screenVertexShaderSource, screenFragmentShaderSource))
+            {
+                std::cout << "Failed to load main shader." << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            //one off serialize
+            mainRenderer.setUniform("iResolution", sf::Vector2f((float)resolution.x, (float)resolution.y));
+            //mainRenderer.setParameter("iResolution", sf::Vector2f((float)resolution.x, (float)resolution.y));
+            sf::Shader::bind(&mainRenderer);
         }
 
         void OnGameUpdate() override
         {
+            //here render whole scene
+            float ratio = resolution.x / resolution.y;
 
+            sf::Vector2f res(resolution.x, resolution.y);
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+
+            glOrtho(-ratio, ratio, -1.0f, 1.0f, 1.0f, -1.0f);
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+
+            glPushMatrix();
+            glBegin(GL_QUADS);
+            glNormal3f(0.0, 0.0, 1.0);
+            glVertex3f(-1.0f, -1.0f, 0.0f);
+            glVertex3f(1.0f, -1.0f, 0.0f);
+            glVertex3f(1.0f, 1.0f, 0.0f);
+            glVertex3f(-1.0f, 1.0f, 0.0f);
+            glEnd();
+            glPopMatrix();
         }
 };
 
