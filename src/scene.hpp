@@ -10,14 +10,16 @@ public:
 
 private:
 	Node* root;
-    std::vector<Singleton> singletons;
+    Node* mainCamera;
+    Node* player;
+    std::vector<Singleton> singletons; //unused
 
 private:
 
     void OnGameStart() override
     {
-        root = new Node();
-        root->name = "root";
+        //root = new Node();
+        //root->name = "root";
     }
 
     void OnGameObject(Node& node) override
@@ -75,6 +77,17 @@ public:
         {
             ScanAllObjects(root->children[i], function, fnums);
         }
+    }
+
+    //getters:
+    Node& GetMainCamera()
+    {
+        return *mainCamera;
+    }
+
+    Node& GetPlayer()
+    {
+        return *player;
     }
 };
 

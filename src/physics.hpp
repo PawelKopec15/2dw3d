@@ -69,6 +69,19 @@ struct Vect3
 	V y;
 	V z;
 
+	Vect3()
+	{
+		x = V();
+		y = V();
+		z = V();
+	}
+
+	Vect3(V x, V y, V z) : x(x), y(y), z(z)
+	{
+
+	}
+
+	//Segmented getting
 	Vect2<V> xy()
 	{
 		return Vect2<V>(x, y);
@@ -98,6 +111,15 @@ struct Vect3
 	{
 		return Vect2<V>(z, y);
 	}
+
+	//operator overloading
+	/*
+	ostream& operator<<(ostream& os, const Vect3& vect)
+	{
+		os << '(' << vect.x << ", " << vect.y << ", " << vect.z << ')';
+		return os;
+	}
+	*/
 };
 
 template <typename V>
@@ -107,6 +129,19 @@ struct Vect4
 	V y;
 	V z;
 	V w;
+
+	Vect4()
+	{
+		x = V();
+		y = V();
+		z = V();
+		w = V();
+	}
+
+	Vect4(V x, V y, V z, V w) : x(x), y(y), z(z), w(w)
+	{
+
+	}
 };
 
 //contains only 3d coordinates as 2d objects are placed in 3d space
@@ -115,9 +150,11 @@ struct Transform
 {
 	Vect3<V> position;
 	Vect3<V> rotation;
-	Vect3<V> scale;
+	Vect3<V> globalScale;
 	
 	Vect3<V> localPosition;
 	Vect3<V> localRotation;
-	Vect3<V> localScale;
+	Vect3<V> scale; //usually when devs change scale they mean local scale
+
+	//here needed whole protective mechanism for object synchronization
 };

@@ -28,6 +28,13 @@ int main()
     //engine.push_back(&scene);
     engine.push_back(&rendering);
 
+    //Initializing player (just for now)
+    scene.player = new Node25d();
+    scene.mainCamera = scene.player;
+    scene.GetMainCamera().transform.position = Vect3<float>(0, 0, 0);
+    scene.GetMainCamera().transform.rotation = Vect3<float>(0, 0, 0);
+    scene.GetMainCamera().transform.scale = Vect3<float>(1, 1, 0);
+
     //GAME START
     for (unsigned int i = 0; i < engine.size(); ++i)
     {

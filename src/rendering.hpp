@@ -5,6 +5,7 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
+#include "scene.hpp"
 #include "shapes.hpp"
 #include "engine.hpp"
 
@@ -61,31 +62,34 @@ private:
 
         return program.str();
     }
+        //loading shader from file:
+        //creating list of files for shader compilation
+        //ORDER MATTERS!!!!
+        std::string CompileMainRenderer()
+        {
+            std::vector<std::string> projectFiles = {
+                "shaders/uniforms.glsl",
+                "shaders/main.glsl"
+            };
 
-    private:
+            return ParseShaderProject(projectFiles);
+        }
+
+        void SerializeScene()
+        {
+            //camera:
+            Transform<float> camTransform = scene.GetMainCamera().transform;
+
+            //std::cout << camTransform.scale << std::endl;
+            mainRenderer.setUniform("CamPos", sf::Vector3f(camTransform.position.x, camTransform.position.y, camTransform.position.z));
+            mainRenderer.setUniform("CamRot", sf::Vector3f(camTransform.rotation.x, camTransform.rotation.y, camTransform.rotation.z));
+            mainRenderer.setUniform("CamScale", sf::Vector2f(camTransform.scale.x, camTransform.scale.y));
+        }
+
         void OnGameStart() override
         {
             resolution.x = 1280;
             resolution.y = 720;
-
-            //scene initialization
-            //List<ShapeObject<GLfloat>> mainScene;
-
-            //loading shader from file:
-            //"shaders/customShape.glsl",
-            std::vector<std::string> projectFiles = {
-                /*"shaders/uniforms.glsl",
-                "shaders/calculations.glsl",
-                "shaders/shapes.glsl",
-                "shaders/connections.glsl",
-                "shaders/repeatings.glsl",
-                "shaders/textures.glsl",
-                "customShape.glsl",
-                "shaders/shapesManager.glsl",*/
-                "shaders/main.glsl"
-            };
-
-            std::string shaderSource = ParseShaderProject(projectFiles);
             
             if (!sf::Shader::isAvailable())
             {
@@ -93,7 +97,9 @@ private:
                 exit(EXIT_FAILURE);
             }
 
-            if (!mainRenderer.loadFromMemory(screenVertexShaderSource, screenFragmentShaderSource))
+            std::cout << CompileMainRenderer() << std::endl;
+            //if (!mainRenderer.loadFromMemory(screenVertexShaderSource, screenFragmentShaderSource))
+            if (!mainRenderer.loadFromMemory(screenVertexShaderSource, CompileMainRenderer()))
             {
                 std::cout << "Failed to load main shader." << std::endl;
                 exit(EXIT_FAILURE);
@@ -101,17 +107,17 @@ private:
 
             //one off serialize
             mainRenderer.setUniform("iResolution", sf::Vector2f((float)resolution.x, (float)resolution.y));
-            //mainRenderer.setParameter("iResolution", sf::Vector2f((float)resolution.x, (float)resolution.y));
             sf::Shader::bind(&mainRenderer);
         }
 
         void OnGameUpdate() override
         {
-            //here render whole scene
-            float ratio = resolution.x / resolution.y;
+            //here serialize scene
+            SerializeScene();
 
+            //opengl screen setup
             sf::Vector2f res(resolution.x, resolution.y);
-
+            float ratio = resolution.x / resolution.y;
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();

@@ -73,10 +73,10 @@ class Node
 public:
 	friend class Scene;
 	std::string name;
+	Transform<float> transform; //make it inchangable in future
 protected:
 	std::vector<Node> children;
 	std::vector<Component> components;
-	Transform<float> transform;
 	Node* parent;
 	bool active;
 	bool isSynched;
@@ -145,6 +145,7 @@ public:
 
 class Node3d : public Node
 {
+public:
 	Node3d()
 	{
 		transform = Transform<float>();
@@ -153,7 +154,11 @@ class Node3d : public Node
 
 class Node25d : public Node3d
 {
-
+public:
+	Node25d()
+	{
+		transform = Transform<float>();
+	}
 };
 
 /*
