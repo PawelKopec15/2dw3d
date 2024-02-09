@@ -73,7 +73,7 @@ class Node
 public:
 	friend class Scene;
 	std::string name;
-	Transform<float> transform; //make it inchangable in future
+	Transform transform; //make it inchangable in future
 protected:
 	std::vector<Node> children;
 	std::vector<Component> components;
@@ -97,7 +97,7 @@ public:
 
 	virtual Node GetParent()
 	{
-		return *parent;
+		return &parent;
 	}
 
 	void ForEachChild(void (*func)(Node& child))
@@ -143,24 +143,20 @@ public:
 	}
 };
 
-class Node3d : public Node
+//delete later
+class SpacialNode : public Node
 {
 public:
-	Node3d()
+	SpacialNode()
 	{
-		transform = Transform<float>();
+		transform = Transform();
+	}
+
+	SpacialNode(bool flat)
+	{
+		transform = Transform25d();
 	}
 };
-
-class Node25d : public Node3d
-{
-public:
-	Node25d()
-	{
-		transform = Transform<float>();
-	}
-};
-
 /*
 class SpacialNode : public Node
 {

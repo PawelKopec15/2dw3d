@@ -30,12 +30,11 @@ int main()
 
     //Initializing player (just for now)
     rendering.resolution = Vect2<int>(800, 600);
-    scene.player = new Node25d();
+    scene.player = new SpacialNode();
     scene.mainCamera = scene.player;
     scene.GetMainCamera().transform.position = Vect3<float>(0, 0, 0);
     scene.GetMainCamera().transform.rotation = Vect3<float>(30, 0, 0);
     scene.GetMainCamera().transform.scale = Vect3<float>(5, 4, 0);
-
 
     sf::Clock clock;
     //GAME START
@@ -69,7 +68,6 @@ int main()
         {
             engine[i]->OnGameUpdate();
         }
-        scene.GetMainCamera().transform.rotation.y += clock.restart().asSeconds() * 90;
 
         //window.clear(); //we don't have to clear as main renderer clears anyway
         window.display();

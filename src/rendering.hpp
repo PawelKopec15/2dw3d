@@ -81,7 +81,7 @@ private:
         void SerializeScene()
         {
             //camera:
-            Transform<float> camTransform = scene.GetMainCamera().transform;
+            Transform& camTransform = scene.GetMainCamera().transform;
 
             //std::cout << camTransform.scale << std::endl;
             mainRenderer.setUniform("CamPos", sf::Vector3f(camTransform.position.x, camTransform.position.y, camTransform.position.z));
@@ -98,7 +98,7 @@ private:
                 exit(EXIT_FAILURE);
             }
 
-            std::cout << CompileMainRenderer() << std::endl;
+            //std::cout << CompileMainRenderer() << std::endl;
             //if (!mainRenderer.loadFromMemory(screenVertexShaderSource, screenFragmentShaderSource))
             if (!mainRenderer.loadFromMemory(screenVertexShaderSource, CompileMainRenderer()))
             {

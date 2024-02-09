@@ -1,13 +1,7 @@
 #pragma once
 #include <cmath>
 
-template <typename V>
-struct Vect
-{
-
-};
-
-template <typename V>
+template <typename V = float>
 struct Vect2
 {
 	V x;
@@ -51,13 +45,16 @@ struct Vect2
 	//normalizes original vector
 	void Normalize()
 	{
-
+		V dist = Length();
+		x = x / dist;
+		y = y / dist;
 	}
 
 	//returns normalized version of vector
 	Vect2 Normalized()
 	{
-
+		V dist = Length();
+		return Vect2(x / dist, y / dist);
 	}
 };
 
@@ -144,17 +141,139 @@ struct Vect4
 	}
 };
 
+//special vector for transform
+//the only existance of it is to maintain nice transform edition
+//while correctly synchronizing transforms
+struct TransVect3
+{
+	//this trick makes a "read only" public variable:
+private:
+	float x_;
+	float y_;
+	float z_;
+
+public:
+	const float& x = x_;
+	const float& y = y_;
+	const float& z = z_;
+
+
+
+	TransVect3()
+	{
+		x_ = 0;
+		y_ = 0;
+		z_ = 0;
+	}
+
+	/*
+	TransVect3(TransVect3 &temp)
+	{
+		std::cout << "& overloaded" << std::endl;
+		x_ = temp.x;
+		y_ = temp.y;
+		z_ = temp.z;
+	}
+	*/
+
+	//synch triggers
+	TransVect3& operator=(Vect3<float>& other)
+	{
+		std::cout << "= overloaded" << std::endl;
+		x_ = other.x;
+		y_ = other.y;
+		z_ = other.z;
+		return *this;
+	}
+
+	TransVect3& operator=(Vect3<float>&& other)
+	{
+		std::cout << "= overloaded" << std::endl;
+		x_ = other.x;
+		y_ = other.y;
+		z_ = other.z;
+		return *this;
+	}
+
+	TransVect3& operator=(TransVect3& other)
+	{
+		std::cout << "= overloaded" << std::endl;
+		x_ = other.x;
+		y_ = other.y;
+		z_ = other.z;
+		return *this;
+	}
+
+	//ummm I just want to keep it for now
+	TransVect3& operator=(TransVect3&& other)
+	{
+		std::cout << "= overloaded" << std::endl;
+		x_ = other.x;
+		y_ = other.y;
+		z_ = other.z;
+		return *this;
+	}
+
+	//well unfortunately we have to rewrite everything as for vect3
+
+
+};
+
 //contains only 3d coordinates as 2d objects are placed in 3d space
-template <typename V>
 struct Transform
 {
-	Vect3<V> position;
-	Vect3<V> rotation;
-	Vect3<V> globalScale;
+	//Node* node;
+	TransVect3 position;
+	TransVect3 rotation;
+	TransVect3 globalScale;
 	
-	Vect3<V> localPosition;
-	Vect3<V> localRotation;
-	Vect3<V> scale; //usually when devs change scale they mean local scale
+	TransVect3 localPosition;
+	TransVect3 localRotation;
+	TransVect3 scale; //usually when devs change scale they mean local scale
 
-	//here needed whole protective mechanism for object synchronization
+	//for 2d manipulation
+	Vect2 <float> flatPosition;
+
+	//synchronization
+	void synch(int changeType)
+	{
+		if (changeType == 0) //position
+		{
+
+		}
+		else if (changeType == 1) //rotation
+		{
+
+		}
+		else if (changeType == 2) //scale (global)
+		{
+
+		}
+		else if (changeType == 3) //local pos
+		{
+
+		}
+		else if (changeType == 3) //local rot
+		{
+
+		}
+		else if (changeType == 3) //local scale
+		{
+
+		}
+		else if (changeType == 3) //2d pos
+		{
+
+		}
+	}
+
 };
+
+
+
+/*
+struct Rigidbody : public Component
+{
+
+};
+*/
