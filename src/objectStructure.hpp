@@ -1,8 +1,10 @@
 #pragma once
+class Node;
+struct Transform;
 #include <vector>
-#include "physics.hpp"
 
-class Node; //needed for circuar dependency
+//needed for circuar dependency
+//struct Transform;
 
 class Component
 {
@@ -70,37 +72,45 @@ private:
 
 class Node
 {
-public:
-	friend class Scene;
-	std::string name;
-	Transform transform; //make it inchangable in future
 protected:
 	std::vector<Node> children;
 	std::vector<Component> components;
-	Node* parent;
 	bool active;
-	bool isSynched;
-	bool canBeReassigned;
+	bool canBeReassigned; //????
+	Transform* transform_;
+public:
+	friend class Scene;
+	std::string name;
+	Node* parent;
+	Transform& transform = *transform_;
 
 public:
-    Node(bool canBeReassigned = false) : canBeReassigned(canBeReassigned)
-    {
+	Node();
 
-    }
+	virtual Node* GetParent();
 
-    /*
-	Node(): children(std::vector<Node>()), components(std::vector<Component<Node>>()), parent(nullptr), active(true), isSynched(true)
+	void ForEachChild(void (*func)(Node& child));
+
+	void SetActive();
+
+	void AddComponent();
+};
+#include "physics.hpp"
+
+
+	Node::Node() : active(true), transform_(new Transform(this))
 	{
-		
+        
 	}
-    */
 
-	virtual Node GetParent()
+	Node* Node::GetParent()
 	{
-		return &parent;
+		//Pawel smart pointer here!!!!
+
+		return parent;
 	}
 
-	void ForEachChild(void (*func)(Node& child))
+	void Node::ForEachChild(void (*func)(Node& child))
 	{
 		for (unsigned int i = 0; i < children.size(); ++i)
 		{
@@ -108,72 +118,25 @@ public:
 		}
 	}
 
-	virtual void Synchronize()
-	{
-		/*
-		if (isSynched == true)
-		{
-			return;
-		}
-		*/
-		if (parent->isSynched == false)
-		{
-			parent->Synchronize();
-		}
-		//here comes actual synch in spacial
-
-		//isSynched = true;
-		//node by itself is never synched
-		/*
-		for (int i = 0; i < children.size(); ++i)
-		{
-			children[i].Synchronize();
-		}
-		*/
-	}
-
-	void SetActive()
+	void Node::SetActive()
 	{
 		//here add / remove from a prefix list in engine parts
 	}
 
-	void AddComponent()
+	void Node::AddComponent()
 	{
 
 	}
-};
 
-//delete later
+/*
+//this is practically useless
 class SpacialNode : public Node
 {
+
 public:
 	SpacialNode()
 	{
-		transform = Transform();
-	}
-
-	SpacialNode(bool flat)
-	{
-		transform = Transform25d();
-	}
-};
-/*
-class SpacialNode : public Node
-{
-
-	void Synchronize()
-	{
-		if (isSynched == true)
-		{
-			return;
-		}
-		if (parent->isSynched == false)
-		{
-			parent->Synchronize();
-		}
-		//here comes actual synch in spacial
-
-		isSynched = true;
+		//transform = Transform(this);
 	}
 };
 */

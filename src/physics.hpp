@@ -1,4 +1,7 @@
 #pragma once
+//class SpacialNode;
+class Node;
+//#include "objectStructure.hpp"
 #include <cmath>
 
 template <typename V = float>
@@ -144,7 +147,7 @@ struct Vect4
 //special vector for transform
 //the only existance of it is to maintain nice transform edition
 //while correctly synchronizing transforms
-struct TransVect3
+struct TransVect3 : Vect3<float>
 {
 	//this trick makes a "read only" public variable:
 private:
@@ -166,15 +169,15 @@ public:
 		z_ = 0;
 	}
 
-	/*
-	TransVect3(TransVect3 &temp)
+	TransVect3(Vect3<float> vect) : x_(vect.x), y_(vect.y), z_(vect.z)
 	{
-		std::cout << "& overloaded" << std::endl;
-		x_ = temp.x;
-		y_ = temp.y;
-		z_ = temp.z;
+
 	}
-	*/
+
+	TransVect3(float x, float y, float z) : x_(x), y_(y), z_(z)
+	{
+
+	}
 
 	//synch triggers
 	TransVect3& operator=(Vect3<float>& other)
@@ -216,17 +219,118 @@ public:
 
 	//well unfortunately we have to rewrite everything as for vect3
 
+	//we also converts transVect into regular vect for all r values
+	//(because we do not need "secured" vector in vetor expressions)
+	Vect3<float> operator+(Vect3& other)
+	{
+		return Vect3<float>(other.x + x_, other.y + y_, other.z + z_);
+	}
 
+	Vect3<float> operator-(Vect3& other)
+	{
+		return Vect3<float>(other.x - x_, other.y - y_, other.z - z_);
+	}
+
+	Vect3<float> operator-(Vect3&& other)
+	{
+		return Vect3<float>(x_ - other.x, y_ - other.y, z_ - other.z);
+	}
+
+	Vect3<float> operator-(TransVect3& other)
+	{
+		return Vect3<float>(x_ - other.x, y_ - other.y, z_ - other.z);
+	}
+
+	Vect3<float> operator*(Vect3& other)
+	{
+		return Vect3<float>(other.x * x_, other.y * y_, other.z * z_);
+	}
+
+	Vect3<float> operator*(float& other)
+	{
+		return Vect3<float>(other * x_, other * y_, other * z_);
+	}
+
+	Vect3<float> operator*(float&& other)
+	{
+		return Vect3<float>(x_ * other, y_ * other, z_ * other);
+	}
+
+	Vect3<float> operator/(float& other)
+	{
+		return Vect3<float>(other / x_, other / y_, other / z_);
+	}
+
+	Vect3<float> operator/(float&& other)
+	{
+		return Vect3<float>(x_ / other, y_ / other, z_ / other);
+	}
+
+	Vect3<float> operator%(float& other)
+	{
+		return Vect3<float>(fmod(other, x_), fmod(other, y_), fmod(other, z_));
+	}
+
+	Vect3<float> operator%(float&& other)
+	{
+		return Vect3<float>(fmod(x_, other), fmod(y_, other), fmod(z_, other));
+	}
+
+	//subscpription operators:
+	TransVect3& operator+=(Vect3<float>&& other)
+	{
+		x_ = x_ + other.x;
+		y_ = y_ + other.y;
+		z_ = z_ + other.z;
+		return *this;
+	}
+
+	TransVect3& operator-=(Vect3<float>&& other)
+	{
+		x_ = x_ - other.x;
+		y_ = y_ - other.y;
+		z_ = z_ - other.z;
+		return *this;
+	}
+
+	TransVect3& operator*=(Vect3<float>&& other)
+	{
+		x_ = x_ * other.x;
+		y_ = y_ * other.y;
+		z_ = z_ * other.z;
+		return *this;
+	}
+
+	TransVect3& operator/=(Vect3<float>&& other)
+	{
+		x_ = x_ / other.x;
+		y_ = y_ / other.y;
+		z_ = z_ / other.z;
+		return *this;
+	}
+
+	TransVect3& operator%=(Vect3<float>&& other)
+	{
+		x_ = fmod(x_, other.x);
+		y_ = fmod(y_, other.x);
+		z_ = fmod(z_, other.x);
+		return *this;
+	}
+
+	bool operator==(Vect3<float>&& other)
+	{
+		return (x_ == other.x && y_ == other.y && z_ == other.z);
+	}
 };
 
 //contains only 3d coordinates as 2d objects are placed in 3d space
 struct Transform
 {
-	//Node* node;
+	Node* node;
 	TransVect3 position;
 	TransVect3 rotation;
 	TransVect3 globalScale;
-	
+
 	TransVect3 localPosition;
 	TransVect3 localRotation;
 	TransVect3 scale; //usually when devs change scale they mean local scale
@@ -234,12 +338,36 @@ struct Transform
 	//for 2d manipulation
 	Vect2 <float> flatPosition;
 
+	Transform(Node* node) : node(node), position(), rotation(), globalScale(), localPosition(), localRotation(), scale(1, 1, 1)
+	{
+		//maybe, will be checked later
+		synch(4);
+		synch(5);
+		synch(6);
+	}
+
 	//synchronization
 	void synch(int changeType)
 	{
 		if (changeType == 0) //position
 		{
+			//*
+			Node* parent = node->parent;
+			//Node* parent = node->parent;
+			//parent synch
+			if (!(parent == nullptr))
+			{
+				//localPosition = position - parent->transform.position;
+			}
+			else
+			{
+				localPosition = position;
+			}
+			//Transform parent = parent;
 
+
+			//child synch
+			//*/
 		}
 		else if (changeType == 1) //rotation
 		{
@@ -268,7 +396,6 @@ struct Transform
 	}
 
 };
-
 
 
 /*
