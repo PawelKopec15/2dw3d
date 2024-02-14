@@ -31,10 +31,12 @@ int main()
     //Initializing player (just for now)
     rendering.resolution = Vect2<int>(800, 600);
     scene.player = new SpacialNode();
-    scene.mainCamera = scene.player;
+    scene.mainCamera = scene.player->ToSpacial();
     scene.GetMainCamera().transform.position = Vect3<float>(0, 0, 0);
     scene.GetMainCamera().transform.rotation = Vect3<float>(30, 0, 0);
     scene.GetMainCamera().transform.scale = Vect3<float>(5, 4, 0);
+    scene.GetMainCamera().transform = scene.GetMainCamera().transform;
+    std::cout << scene.GetMainCamera().transform.scale.x << std::endl;
 
     sf::Clock clock;
     //GAME START

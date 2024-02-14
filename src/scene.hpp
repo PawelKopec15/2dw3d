@@ -10,7 +10,7 @@ public:
 
 private:
 	Node* root;
-    Node* mainCamera;
+    SpacialNode* mainCamera;
     Node* player;
     std::vector<Singleton> singletons; //unused
 
@@ -80,7 +80,7 @@ public:
     }
 
     //getters:
-    Node& GetMainCamera()
+    SpacialNode& GetMainCamera()
     {
         return *mainCamera;
     }
