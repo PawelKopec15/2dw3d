@@ -35,7 +35,8 @@ int main()
     scene.GetMainCamera().transform.position = Vect3<float>(0, 0, 0);
     scene.GetMainCamera().transform.rotation = Vect3<float>(30, 0, 0);
     scene.GetMainCamera().transform.scale = Vect3<float>(5, 4, 0);
-    scene.GetMainCamera().transform = scene.GetMainCamera().transform;
+    //ups, I still can do this
+    //scene.GetMainCamera().transform = scene.GetMainCamera().transform;
     std::cout << scene.GetMainCamera().transform.scale.x << std::endl;
 
     sf::Clock clock;

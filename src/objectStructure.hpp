@@ -32,6 +32,12 @@
 
 	}
 
+	//conversion
+	TransVect3::operator Vect3<float>()
+	{
+		return Vect3<float>(x_, y_, z_);
+	}
+
 	//synch triggers
 	TransVect3& TransVect3::operator=(Vect3<float>& other)
 	{
@@ -44,7 +50,7 @@
 
 	TransVect3& TransVect3::operator=(Vect3<float>&& other)
 	{
-		std::cout << "= overloaded" << std::endl;
+		transform->SynchActive(synchId);
 		x_ = other.x;
 		y_ = other.y;
 		z_ = other.z;
@@ -53,7 +59,7 @@
 
 	TransVect3& TransVect3::operator=(TransVect3& other)
 	{
-		std::cout << "= overloaded" << std::endl;
+		transform->SynchActive(synchId);
 		x_ = other.x;
 		y_ = other.y;
 		z_ = other.z;
@@ -63,10 +69,10 @@
 	//ummm I just want to keep it for now
 	TransVect3& TransVect3::operator=(TransVect3&& other)
 	{
-		std::cout << "= overloaded" << std::endl;
 		x_ = other.x;
 		y_ = other.y;
 		z_ = other.z;
+		transform->SynchActive(synchId);
 		return *this;
 	}
 
@@ -74,57 +80,47 @@
 
 	//we also converts transVect into regular vect for all r values
 	//(because we do not need "secured" vector in vetor expressions)
-	Vect3<float> TransVect3::operator+(Vect3<float>& other)
+	Vect3<float> TransVect3::operator+(Vect3<float> other)
 	{
-		return Vect3<float>(other.x + x_, other.y + y_, other.z + z_);
+		return Vect3<float>(x_ + other.x, y_ + other.y, z_ + other.z);
 	}
 
-	Vect3<float> TransVect3::operator-(Vect3<float>& other)
-	{
-		return Vect3<float>(other.x - x_, other.y - y_, other.z - z_);
-	}
-
-	Vect3<float> TransVect3::operator-(Vect3<float>&& other)
+	Vect3<float> TransVect3::operator-(Vect3<float> other)
 	{
 		return Vect3<float>(x_ - other.x, y_ - other.y, z_ - other.z);
 	}
 
-	Vect3<float> TransVect3::operator-(TransVect3& other)
+	Vect3<float> TransVect3::operator-()
 	{
-		return Vect3<float>(x_ - other.x, y_ - other.y, z_ - other.z);
+		return Vect3<float>(-x_, -y_, -z_);
 	}
 
-	Vect3<float> TransVect3::operator*(Vect3<float>& other)
+	Vect3<float> TransVect3::operator*(Vect3<float> other)
 	{
-		return Vect3<float>(other.x * x_, other.y * y_, other.z * z_);
+		return Vect3<float>(x_ * other.x, y_ * other.y, z_ * other.z);
 	}
 
 	Vect3<float> TransVect3::operator*(float& other)
 	{
-		return Vect3<float>(other * x_, other * y_, other * z_);
+		return Vect3<float>(x_ * other, y_ * other, z_ * other);
 	}
 
-	Vect3<float> TransVect3::operator*(float&& other)
+	Vect3<float> TransVect3::operator/(Vect3<float> other)
 	{
-		return Vect3<float>(x_ * other, y_ * other, z_ * other);
+		return Vect3<float>(x_ / other.x, y_ / other.y, z_ / other.z);
 	}
 
 	Vect3<float> TransVect3::operator/(float& other)
 	{
-		return Vect3<float>(other / x_, other / y_, other / z_);
-	}
-
-	Vect3<float> TransVect3::operator/(float&& other)
-	{
 		return Vect3<float>(x_ / other, y_ / other, z_ / other);
 	}
 
-	Vect3<float> TransVect3::operator%(float& other)
+	Vect3<float> TransVect3::operator%(Vect3<float> other)
 	{
-		return Vect3<float>(fmod(other, x_), fmod(other, y_), fmod(other, z_));
+		return Vect3<float>(fmod(x_, other.x), fmod(y_, other.y), fmod(z_, other.z));
 	}
 
-	Vect3<float> TransVect3::operator%(float&& other)
+	Vect3<float> TransVect3::operator%(float& other)
 	{
 		return Vect3<float>(fmod(x_, other), fmod(y_, other), fmod(z_, other));
 	}
@@ -132,33 +128,37 @@
 	//subscpription operators:
 	TransVect3& TransVect3::operator+=(Vect3<float>&& other)
 	{
-		x_ = x_ + other.x;
-		y_ = y_ + other.y;
-		z_ = z_ + other.z;
+		x_ += other.x;
+		y_ += other.y;
+		z_ += other.z;
+		transform->SynchActive(synchId);
 		return *this;
 	}
 
 	TransVect3& TransVect3::operator-=(Vect3<float>&& other)
 	{
-		x_ = x_ - other.x;
-		y_ = y_ - other.y;
-		z_ = z_ - other.z;
+		x_ -= other.x;
+		y_ -= other.y;
+		z_ -= other.z;
+		transform->SynchActive(synchId);
 		return *this;
 	}
 
 	TransVect3& TransVect3::operator*=(Vect3<float>&& other)
 	{
-		x_ = x_ * other.x;
-		y_ = y_ * other.y;
-		z_ = z_ * other.z;
+		x_ *= other.x;
+		y_ *= other.y;
+		z_ *= other.z;
+		transform->SynchActive(synchId);
 		return *this;
 	}
 
 	TransVect3& TransVect3::operator/=(Vect3<float>&& other)
 	{
-		x_ = x_ / other.x;
-		y_ = y_ / other.y;
-		z_ = z_ / other.z;
+		x_ /= other.x;
+		y_ /= other.y;
+		z_ /= other.z;
+		transform->SynchActive(synchId);
 		return *this;
 	}
 
@@ -167,12 +167,20 @@
 		x_ = fmod(x_, other.x);
 		y_ = fmod(y_, other.x);
 		z_ = fmod(z_, other.x);
+		transform->SynchActive(synchId);
 		return *this;
 	}
 
 	bool TransVect3::operator==(Vect3<float>&& other)
 	{
 		return (x_ == other.x && y_ == other.y && z_ == other.z);
+	}
+
+	void TransVect3::Set(Vect3<float> vect)
+	{
+		x_ = vect.x;
+		y_ = vect.y;
+		z_ = vect.z;
 	}
 
 
@@ -192,50 +200,89 @@
 	//usually called when not changed directly, but still requires synching
 	void Transform::SynchPassive(SpacialNode* node)
 	{
-		//position = 
+		//pos
+		Vect3<float> newVect = node->transform.position;
+		newVect += Vect3<float>::Rotated3D(localPosition * node->transform.globalScale, node->transform.rotation);
+		position.x_ = newVect.x;
+		position.y_ = newVect.y;
+		position.z_ = newVect.z;
+		//rot
+		rotation.Set(node->transform.rotation + localRotation);
+		//scale
+		globalScale.Set(node->transform.globalScale * scale);
 	}
 
 	void Transform::SynchActive(int changeType)
 	{
-		if (changeType == 0) //position
+		SpacialNode* parent = node->GetSpacialParent();
+		//setting according to parent
+		if (parent != nullptr)
 		{
-			//*
-			Node* parent = node->parent;
-			//Node* parent = node->parent;
-			//parent synch
-			if (!(parent == nullptr))
+			if (changeType == 0) //position
 			{
-				//localPosition = position - parent->transform.position;
+				//find relative position
+				Vect3<float> unroatedLocalPos = position - parent->transform.position;
+				localPosition.Set(Vect3<float>::Rotated3D(unroatedLocalPos, -rotation) / parent->transform.globalScale);
 			}
-			else
+			else if (changeType == 1) //rotation
 			{
-				localPosition = position;
+				localRotation.Set(rotation - parent->transform.rotation);
+			}
+			else if (changeType == 2) //scale (global)
+			{
+				scale.Set(globalScale / parent->transform.globalScale);
+			}
+			else if (changeType == 3) //local pos
+			{
+				position.Set(parent->transform.position + Vect3<float>::Rotated3D(localPosition, parent->transform.rotation) * parent->transform.globalScale);
+			}
+			else if (changeType == 4) //local rot
+			{
+				rotation.Set((parent->transform.rotation + localRotation));
+			}
+			else if (changeType == 5) //local scale
+			{
+				globalScale.Set(parent->transform.scale * scale);
+			}
+			else if (changeType == 6) //2d pos
+			{
+
 			}
 		}
-		else if (changeType == 1) //rotation
+		else //no parent
 		{
+			if (changeType == 0) //position
+			{
+				localPosition.Set(position);
+			}
+			else if (changeType == 1) //rotation
+			{
+				localRotation.Set(rotation);
+			}
+			else if (changeType == 2) //scale (global)
+			{
+				scale.Set(globalScale);
+			}
+			else if (changeType == 3) //local pos
+			{
+				position.Set(localPosition);
+			}
+			else if (changeType == 4) //local rot
+			{
+				rotation.Set(localRotation);
+			}
+			else if (changeType == 5) //local scale
+			{
+				globalScale.Set(scale);
+			}
+			else if (changeType == 6) //2d pos
+			{
 
+			}
 		}
-		else if (changeType == 2) //scale (global)
-		{
 
-		}
-		else if (changeType == 3) //local pos
-		{
-
-		}
-		else if (changeType == 3) //local rot
-		{
-
-		}
-		else if (changeType == 3) //local scale
-		{
-
-		}
-		else if (changeType == 3) //2d pos
-		{
-
-		}
+		//activate synching in node
+		node->SynchTransforms(node);
 	}
 
 //NODE DEFINITION
@@ -275,9 +322,23 @@
 		}
 	}
 
+	//does synch of all child transforms
+	void Node::SynchTransforms(SpacialNode* originator)
+	{
+		for (int i = 0; i < children.size(); ++i)
+		{
+			SpacialNode* spaceChild = children[i].ToSpacial();
+			if (spaceChild != nullptr)
+			{
+				spaceChild->transform.SynchPassive(originator);
+			}
+			children[i].SynchTransforms(originator);
+		}
+	}
+
 	void Node::SetActive()
 	{
-		//here add / remove from a prefix list in engine parts
+
 	}
 
 	void Node::AddComponent()
@@ -294,4 +355,17 @@
 	SpacialNode* SpacialNode::ToSpacial()
 	{
 		return this;
+	}
+
+	void SpacialNode::SynchTransforms(SpacialNode* originator)
+	{
+		for (int i = 0; i < children.size(); ++i)
+		{
+			SpacialNode* spaceChild = children[i].ToSpacial();
+			if (spaceChild != nullptr)
+			{
+				spaceChild->transform.SynchPassive(this);
+			}
+			children[i].SynchTransforms(this);
+		}
 	}

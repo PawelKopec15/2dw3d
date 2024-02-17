@@ -14,8 +14,8 @@ struct Transform;
 //while correctly synchronizing transforms
 struct TransVect3
 {
-	//this trick makes a "read only" public variable:
-private:
+	
+protected:
 	Transform* transform;
 	int synchId;
 	float x_;
@@ -23,6 +23,8 @@ private:
 	float z_;
 
 public:
+	friend Transform; //allow to set elements without synching in transform
+	//this trick makes a "read only" public variable:
 	const float& x = x_;
 	const float& y = y_;
 	const float& z = z_;
@@ -39,6 +41,9 @@ public:
 
 	TransVect3(float x, float y, float z, int id);
 
+	//vect3 conversion
+	operator Vect3<float>();
+
 	//synch triggers
 	TransVect3& operator=(Vect3<float>& other);
 
@@ -53,27 +58,23 @@ public:
 
 	//we also converts transVect into regular vect for all r values
 	//(because we do not need "secured" vector in vetor expressions)
-	Vect3<float> operator+(Vect3<float>& other);
+	Vect3<float> operator+(Vect3<float> other);
 
-	Vect3<float> operator-(Vect3<float>& other);
+	Vect3<float> operator-(Vect3<float> other);
+	
+	Vect3<float> operator-(); //negation
 
-	Vect3<float> operator-(Vect3<float>&& other);
-
-	Vect3<float> operator-(TransVect3& other);
-
-	Vect3<float> operator*(Vect3<float>& other);
+	Vect3<float> operator*(Vect3<float> other);
 
 	Vect3<float> operator*(float& other);
 
-	Vect3<float> operator*(float&& other);
+	Vect3<float> operator/(Vect3<float> other);
 
 	Vect3<float> operator/(float& other);
 
-	Vect3<float> operator/(float&& other);
+	Vect3<float> operator%(Vect3<float> other);
 
 	Vect3<float> operator%(float& other);
-
-	Vect3<float> operator%(float&& other);
 
 	//subscpription operators:
 	TransVect3& operator+=(Vect3<float>&& other);
@@ -87,13 +88,16 @@ public:
 	TransVect3& operator%=(Vect3<float>&& other);
 
 	bool operator==(Vect3<float>&& other);
+
+	//special set function only avaible to transform:
+protected:
+	void Set(Vect3<float> vect);
 };
 
 //TRANSFORM DECLARATION
 //contains only 3d coordinates as 2d objects are placed in 3d space
 struct Transform
 {
-	friend struct TransVect3; //allows to change transform while not synching internally
 	SpacialNode* node;
 	TransVect3 position;
 	TransVect3 rotation;
@@ -198,6 +202,8 @@ public:
 
 	void ForEachChild(void (*func)(Node& child));
 
+	virtual void SynchTransforms(SpacialNode* originator);
+
 	void SetActive();
 
 	void AddComponent();
@@ -216,4 +222,5 @@ public:
 	SpacialNode();
 
 	SpacialNode* ToSpacial() override;
+	void SynchTransforms(SpacialNode* originator) override;
 };
